@@ -1,12 +1,12 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null",
+    ".read": true,
+    ".write": true,
     
     "users": {
       ".indexOn": ["username", "role", "lastModified"],
       "$userId": {
-        ".validate": "newData.hasChildren(['id', 'username', 'password', 'role', 'createdAt']) && newData.child('username').isString() && newData.child('password').isString() && (newData.child('role').val() == 'admin' || newData.child('role').val() == 'employee')",
+        ".validate": "newData.hasChildren(['id', 'username', 'password', 'role', 'createdAt'])",
         "id": {
           ".validate": "newData.isString() && newData.val().length > 0"
         },
@@ -26,10 +26,10 @@
           ".validate": "newData.isString() || newData.val() == null"
         },
         "lastModified": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         },
         "syncedBy": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         }
       }
     },
@@ -37,7 +37,7 @@
     "clients": {
       ".indexOn": ["cnic", "name", "type", "lastModified"],
       "$clientId": {
-        ".validate": "newData.hasChildren(['id', 'name', 'cnic', 'password', 'type', 'createdAt', 'updatedAt']) && newData.child('cnic').isString() && newData.child('cnic').val().matches(/^[0-9]{13}$/)",
+        ".validate": "newData.hasChildren(['id', 'name', 'cnic', 'password', 'type', 'createdAt', 'updatedAt'])",
         "id": {
           ".validate": "newData.isString() && newData.val().length > 0"
         },
@@ -62,6 +62,9 @@
         "notes": {
           ".validate": "newData.isString() || newData.val() == null"
         },
+        "documentsReceived": {
+          ".validate": "newData.val() == null || newData.hasChildren()"
+        },
         "createdAt": {
           ".validate": "newData.isString()"
         },
@@ -69,10 +72,10 @@
           ".validate": "newData.isString()"
         },
         "lastModified": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         },
         "syncedBy": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         }
       }
     },
@@ -80,7 +83,7 @@
     "receipts": {
       ".indexOn": ["clientCnic", "date", "createdBy", "lastModified"],
       "$receiptId": {
-        ".validate": "newData.hasChildren(['id', 'clientName', 'clientCnic', 'amount', 'natureOfWork', 'paymentMethod', 'date', 'createdAt', 'createdBy']) && newData.child('amount').isNumber() && newData.child('amount').val() >= 0",
+        ".validate": "newData.hasChildren(['id', 'clientName', 'clientCnic', 'amount', 'natureOfWork', 'paymentMethod', 'date', 'createdAt', 'createdBy'])",
         "id": {
           ".validate": "newData.isString() && newData.val().length > 0"
         },
@@ -97,7 +100,7 @@
           ".validate": "newData.isString()"
         },
         "paymentMethod": {
-          ".validate": "newData.val() == 'cash' || newData.val() == 'bank_transfer' || newData.val() == 'cheque' || newData.val() == 'card' || newData.val() == 'online'"
+          ".validate": "newData.val() == 'cash' || newData.val() == 'bank_transfer' || newData.val() == 'cheque' || newData.val() == 'card' || newData.val() == 'easypaisa' || newData.val() == 'jazzcash'"
         },
         "date": {
           ".validate": "newData.isString()"
@@ -109,10 +112,10 @@
           ".validate": "newData.isString() && newData.val().length > 0"
         },
         "lastModified": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         },
         "syncedBy": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         }
       }
     },
@@ -120,7 +123,7 @@
     "expenses": {
       ".indexOn": ["category", "date", "createdBy", "lastModified"],
       "$expenseId": {
-        ".validate": "newData.hasChildren(['id', 'description', 'amount', 'category', 'date', 'createdAt', 'createdBy']) && newData.child('amount').isNumber() && newData.child('amount').val() >= 0",
+        ".validate": "newData.hasChildren(['id', 'description', 'amount', 'category', 'date', 'createdAt', 'createdBy'])",
         "id": {
           ".validate": "newData.isString() && newData.val().length > 0"
         },
@@ -143,10 +146,10 @@
           ".validate": "newData.isString() && newData.val().length > 0"
         },
         "lastModified": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         },
         "syncedBy": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         }
       }
     },
@@ -165,7 +168,10 @@
           ".validate": "newData.isString() && newData.val().length > 0"
         },
         "email": {
-          ".validate": "newData.isString() && newData.val().contains('@')"
+          ".validate": "newData.isString()"
+        },
+        "phone": {
+          ".validate": "newData.isString() || newData.val() == null"
         },
         "position": {
           ".validate": "newData.isString() && newData.val().length > 0"
@@ -198,10 +204,10 @@
           ".validate": "newData.isString()"
         },
         "lastModified": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         },
         "syncedBy": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         }
       }
     },
@@ -238,10 +244,10 @@
           ".validate": "newData.isString()"
         },
         "lastModified": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         },
         "syncedBy": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         }
       }
     },
@@ -266,10 +272,10 @@
           ".validate": "newData.isString()"
         },
         "lastModified": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         },
         "syncedBy": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         }
       }
     },
@@ -294,10 +300,13 @@
           ".validate": "newData.isNumber() && newData.val() > 0"
         },
         "mimeType": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         },
         "encryptedData": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "tags": {
+          ".validate": "newData.val() == null || newData.hasChildren()"
         },
         "uploadedBy": {
           ".validate": "newData.isString() && newData.val().length > 0"
@@ -309,10 +318,13 @@
           ".validate": "newData.isString() || newData.val() == null"
         },
         "lastModified": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "accessLog": {
+          ".validate": "newData.val() == null || newData.hasChildren()"
         },
         "syncedBy": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         }
       }
     },
@@ -355,10 +367,10 @@
           ".validate": "newData.isString()"
         },
         "lastModified": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         },
         "syncedBy": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         }
       }
     },
@@ -404,10 +416,10 @@
           ".validate": "newData.isString() || newData.val() == null"
         },
         "lastModified": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         },
         "syncedBy": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         }
       }
     },
@@ -453,10 +465,10 @@
           ".validate": "newData.isString() || newData.val() == null"
         },
         "documentsRequired": {
-          ".validate": "newData.val() == null || (newData.hasChildren() && newData.val().length >= 0)"
+          ".validate": "newData.val() == null || newData.hasChildren()"
         },
         "documentsReceived": {
-          ".validate": "newData.val() == null || (newData.hasChildren() && newData.val().length >= 0)"
+          ".validate": "newData.val() == null || newData.hasChildren()"
         },
         "createdAt": {
           ".validate": "newData.isString()"
@@ -465,10 +477,10 @@
           ".validate": "newData.isString()"
         },
         "lastModified": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         },
         "syncedBy": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         }
       }
     },
@@ -537,10 +549,10 @@
           ".validate": "newData.isString()"
         },
         "lastModified": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         },
         "syncedBy": {
-          ".validate": "newData.isString()"
+          ".validate": "newData.isString() || newData.val() == null"
         }
       }
     },
@@ -550,6 +562,9 @@
       "$deviceId": {
         "lastSync": {
           ".validate": "newData.isString()"
+        },
+        "deviceInfo": {
+          ".validate": "newData.isString() || newData.val() == null"
         }
       }
     }

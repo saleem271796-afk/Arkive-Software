@@ -5,7 +5,7 @@ import { Layout } from './components/Layout';
 import Dashboard from './components/Dashboard';
 import ReceiptForm from './components/Receipts';
 import { Clients } from './components/Clients';
-import { Expenses, ActivityLog, BackupRestore } from './components/SimplePages';
+import { Expenses, BackupRestore } from './components/SimplePages';
 import Settings from './components/Settings';
 import EmployeeManagement from './components/EmployeeManagement';
 import { TaxCalculator } from './components/TaxCalculator';
@@ -88,8 +88,6 @@ function AppContent() {
         return <TaxCalculator />;
       case 'notifications':
         return <SmartNotifications />;
-      case 'activity':
-        return <ActivityLog />;
       case 'backup':
         return <BackupRestore />;
       case 'settings':

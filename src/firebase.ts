@@ -1,8 +1,7 @@
 // firebase.ts
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, signOut } from 'firebase/auth';
-import { getDatabase, onValue, ref } from 'firebase/database';
-import { db as localDb } from "./services/database";
+import { getDatabase, ref, onValue, off } from 'firebase/database';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDIo7q8OuI1P63q9t9E1s-ENQjBdCd37nI",
@@ -18,19 +17,59 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const rtdb = getDatabase(app);
 
-// Start realtime sync for receipts
-export function startRealtimeListeners() {
-  const receiptsRef = ref(rtdb, 'receipts');
-  onValue(receiptsRef, async (snapshot) => {
-    const data = snapshot.val() || {};
-    const receipts = Object.values(data);
+// Auto-authenticate for database access
+let authInitialized = false;
 
-    // Clear local IndexedDB and replace with Firebase data
-    await localDb.clearStore('receipts');
-    for (const r of receipts) {
-      await localDb.createReceipt(r);
-    }
+export async function initializeFirebaseAuth() {
+  if (authInitialized) return;
+  
+  try {
+    await signInAnonymously(auth);
+    authInitialized = true;
+    console.log('✅ Firebase authentication initialized');
+  } catch (error) {
+    console.error('❌ Firebase authentication failed:', error);
+    throw error;
+  }
+}
 
-    console.log('Receipts updated from Firebase');
+// Initialize auth immediately
+initializeFirebaseAuth().catch(console.error);
+
+// Setup realtime listeners for all stores
+export function setupRealtimeSync() {
+  const stores = [
+    'users', 'clients', 'receipts', 'expenses', 'employees', 
+    'attendance', 'notifications', 'documents', 'tasks', 
+    'clientAccessRequests', 'clientTasks', 'employeePermissions'
+  ];
+
+  stores.forEach(store => {
+    const storeRef = ref(rtdb, store);
+    onValue(storeRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      console.log(`📡 Firebase realtime update for ${store}:`, Object.keys(data).length, 'items');
+      
+      // Dispatch custom event for components to listen
+      window.dispatchEvent(new CustomEvent(`firebase-${store}-update`, {
+        detail: Object.values(data)
+      }));
+    }, (error) => {
+      console.error(`Firebase listener error for ${store}:`, error);
+    });
+  });
+}
+
+// Remove all listeners
+export function removeRealtimeSync() {
+  const stores = [
+    'users', 'clients', 'receipts', 'expenses', 'employees', 
+    'attendance', 'notifications', 'documents', 'tasks', 
+    'clientAccessRequests', 'clientTasks', 'employeePermissions'
+  ];
+
+  stores.forEach(store => {
+    const storeRef = ref(rtdb, store);
+    off(storeRef);
   });
 }

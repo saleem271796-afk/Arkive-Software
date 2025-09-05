@@ -23,8 +23,7 @@ const menuItems = [
   { id: 'attendance', label: 'My Attendance', icon: Clock, number: '06', employeeOnly: true },
   { id: 'tax-calculator', label: 'Tax Calculator', icon: Calculator, number: '07' },
   { id: 'notifications', label: 'Notifications', icon: Bell, number: '08' },
-  { id: 'activity', label: 'Activity Log', icon: Activity, number: '09', adminOnly: true },
-  { id: 'backup', label: 'Backup/Restore', icon: HardDrive, number: '10', adminOnly: true },
+  { id: 'backup', label: 'Backup/Restore', icon: HardDrive, number: '09', adminOnly: true },
 ];
 
 export function Layout({ children, currentPage, onPageChange }: LayoutProps) {

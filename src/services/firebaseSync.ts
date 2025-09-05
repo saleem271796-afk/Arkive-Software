@@ -1,5 +1,5 @@
 import { ref, set, get, remove, onValue, off, push, update } from 'firebase/database';
-import { rtdb, auth as firebaseAuth } from '../firebase';
+import { rtdb, auth as firebaseAuth, initializeFirebaseAuth } from '../firebase';
 
 export interface SyncOperation {
   id: string;
@@ -29,6 +29,9 @@ class FirebaseSyncService {
 
   private async init() {
     try {
+      // Initialize Firebase auth first
+      await initializeFirebaseAuth();
+      
       this.initializeConnectionMonitoring();
       this.loadSyncQueue();
       
@@ -111,6 +114,11 @@ class FirebaseSyncService {
     if (!this.isOnline) return false;
     
     try {
+      // Ensure Firebase auth is initialized
+      if (!firebaseAuth.currentUser) {
+        await initializeFirebaseAuth();
+      }
+      
       const testRef = ref(rtdb, '.info/connected');
       const snapshot = await get(testRef);
       return snapshot.exists() && snapshot.val() === true;
@@ -186,7 +194,17 @@ class FirebaseSyncService {
   }
 
   private async processSyncQueue() {
-    if (!this.isOnline || this.syncQueue.length === 0 || this.syncInProgress || !firebaseAuth.currentUser) {
+    if (!this.isOnline || this.syncQueue.length === 0 || this.syncInProgress) {
+      return;
+    }
+
+    // Ensure Firebase auth is initialized
+    try {
+      if (!firebaseAuth.currentUser) {
+        await initializeFirebaseAuth();
+      }
+    } catch (error) {
+      console.warn('Firebase auth initialization failed during sync:', error);
       return;
     }
 
@@ -227,6 +245,11 @@ class FirebaseSyncService {
 
   private async syncToFirebase(operation: SyncOperation) {
     if (!this.isOnline) throw new Error('Offline');
+
+    // Ensure Firebase auth is initialized
+    if (!firebaseAuth.currentUser) {
+      await initializeFirebaseAuth();
+    }
 
     const path = `${operation.store}/${operation.data.id}`;
     const dataRef = ref(rtdb, path);
@@ -304,6 +327,11 @@ class FirebaseSyncService {
   async getStoreFromFirebase(storeName: string): Promise<any[]> {
     if (!this.isOnline) throw new Error('Offline');
 
+    // Ensure Firebase auth is initialized
+    if (!firebaseAuth.currentUser) {
+      await initializeFirebaseAuth();
+    }
+
     try {
       const storeRef = ref(rtdb, storeName);
       const snapshot = await get(storeRef);
@@ -357,42 +385,35 @@ class FirebaseSyncService {
       this.removeRealtimeListener(storeName);
     }
 
-    // Check if we have Firebase auth before setting up listener
-    try {
-      const { auth } = require('../firebase');
-      if (!auth.currentUser) {
-        console.warn(`⚠️ No Firebase auth user for ${storeName} listener, skipping...`);
-        return;
-      }
-    } catch (error) {
-      console.warn('Firebase auth check failed:', error);
-      return;
-    }
-
-    const storeRef = ref(rtdb, storeName);
-    const listener = onValue(storeRef, (snapshot) => {
-      try {
-        const data = snapshot.val();
-        if (data) {
-          const items = Object.values(data)
-            .map((item: any) => this.deserializeFromFirebase(item))
-            .filter((item: any) => item.syncedBy !== this.deviceId); // Don't sync back our own changes
-          
-          console.log(`📡 Realtime update for ${storeName}: ${items.length} items`);
-          callback(items);
-        } else {
+    // Initialize Firebase auth if needed
+    initializeFirebaseAuth().then(() => {
+      const storeRef = ref(rtdb, storeName);
+      const listener = onValue(storeRef, (snapshot) => {
+        try {
+          const data = snapshot.val();
+          if (data) {
+            const items = Object.values(data)
+              .map((item: any) => this.deserializeFromFirebase(item))
+              .filter((item: any) => item.syncedBy !== this.deviceId); // Don't sync back our own changes
+            
+            console.log(`📡 Realtime update for ${storeName}: ${items.length} items`);
+            callback(items);
+          } else {
+            callback([]);
+          }
+        } catch (error) {
+          console.error(`Error processing realtime update for ${storeName}:`, error);
           callback([]);
         }
-      } catch (error) {
-        console.error(`Error processing realtime update for ${storeName}:`, error);
-        callback([]);
-      }
-    }, (error) => {
-      console.error(`Realtime listener error for ${storeName}:`, error);
-    });
+      }, (error) => {
+        console.error(`Realtime listener error for ${storeName}:`, error);
+      });
 
-    this.listeners[storeName] = { ref: storeRef, listener };
-    console.log(`✅ Realtime listener setup for ${storeName}`);
+      this.listeners[storeName] = { ref: storeRef, listener };
+      console.log(`✅ Realtime listener setup for ${storeName}`);
+    }).catch(error => {
+      console.warn(`⚠️ Failed to setup listener for ${storeName}:`, error);
+    });
   }
 
   removeRealtimeListener(storeName?: string) {

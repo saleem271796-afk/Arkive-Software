@@ -21,6 +21,10 @@ class DatabaseService {
 
   private async performAutoSync(): Promise<void> {
     try {
+      // Ensure Firebase auth is initialized
+      const { initializeFirebaseAuth } = await import('../firebase');
+      await initializeFirebaseAuth();
+      
       const isConnected = await firebaseSync.checkConnection();
       if (isConnected) {
         await firebaseSync.performFullSync();
@@ -1453,6 +1457,7 @@ class DatabaseService {
       phone: '',
       email: '',
       notes: 'Auto-created from receipt entry'
+      documentsReceived: []
     });
 
     // Log the auto-creation

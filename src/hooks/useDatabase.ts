@@ -5,6 +5,7 @@ import { Client, Receipt, Expense, Activity, Notification, Document, ClientAcces
 import { useEmployees } from './useEmployees';
 import { useAttendance } from './useAttendance';
 import { useTasks } from './useTasks';
+import { initializeFirebaseAuth } from '../firebase';
 
 export function useClients() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -24,6 +25,9 @@ export function useClients() {
 
   useEffect(() => {
     fetchClients();
+    
+    // Initialize Firebase auth first
+    initializeFirebaseAuth().catch(console.warn);
     
     // Setup realtime listener with error handling
     try {
@@ -148,6 +152,9 @@ export function useReceipts() {
   useEffect(() => {
     fetchReceipts();
     
+    // Initialize Firebase auth first
+    initializeFirebaseAuth().catch(console.warn);
+    
     // Setup realtime listener
     firebaseSync.setupRealtimeListener('receipts', (remoteData: Receipt[]) => {
       if (Array.isArray(remoteData)) { // Ensure it's an array
@@ -254,6 +261,9 @@ export function useExpenses() {
   useEffect(() => {
     fetchExpenses();
     
+    // Initialize Firebase auth first
+    initializeFirebaseAuth().catch(console.warn);
+    
     // Setup realtime listener
     firebaseSync.setupRealtimeListener('expenses', (remoteData: Expense[]) => {
       if (remoteData.length >= 0) { // Allow empty arrays
@@ -332,6 +342,9 @@ export function useNotifications() {
   useEffect(() => {
     fetchNotifications();
     
+    // Initialize Firebase auth first
+    initializeFirebaseAuth().catch(console.warn);
+    
     // Setup realtime listener
     firebaseSync.setupRealtimeListener('notifications', (remoteData: Notification[]) => {
       if (remoteData.length >= 0) { // Allow empty arrays
@@ -396,6 +409,9 @@ export function useDocuments() {
 
   useEffect(() => {
     fetchDocuments();
+    
+    // Initialize Firebase auth first
+    initializeFirebaseAuth().catch(console.warn);
     
     // Setup realtime listener
     firebaseSync.setupRealtimeListener('documents', (remoteData: Document[]) => {
@@ -493,6 +509,9 @@ export function useClientAccessRequests() {
 
   useEffect(() => {
     fetchRequests();
+    
+    // Initialize Firebase auth first
+    initializeFirebaseAuth().catch(console.warn);
     
     // Setup realtime listener
     firebaseSync.setupRealtimeListener('clientAccessRequests', (remoteData: ClientAccessRequest[]) => {

@@ -22,6 +22,10 @@ export function useTasks() {
   useEffect(() => {
     fetchTasks();
     
+    // Initialize Firebase auth first
+    const { initializeFirebaseAuth } = require('../firebase');
+    initializeFirebaseAuth().catch(console.warn);
+    
     // Setup realtime listener
     try {
       firebaseSync.setupRealtimeListener('tasks', (remoteData: Task[]) => {

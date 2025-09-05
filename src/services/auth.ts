@@ -1,8 +1,8 @@
 import { User } from '../types';
 import { db } from './database';
 import { firebaseSync } from './firebaseSync';
-import { auth as firebaseAuth } from '../firebase';
-import { signInAnonymously, signOut } from 'firebase/auth';
+import { auth as firebaseAuth, initializeFirebaseAuth, setupRealtimeSync, removeRealtimeSync } from '../firebase';
+import { signOut } from 'firebase/auth';
 
 class AuthService {
   private currentUser: User | null = null;
@@ -180,7 +180,8 @@ class AuthService {
 
       // Sign in to Firebase anonymously for database access
       try {
-        await signInAnonymously(firebaseAuth);
+        await initializeFirebaseAuth();
+        setupRealtimeSync();
         console.log('✅ Firebase anonymous authentication successful');
       } catch (firebaseError) {
         console.warn('⚠️ Firebase anonymous sign-in failed:', firebaseError);
@@ -225,7 +226,7 @@ class AuthService {
     }
 
     // Remove realtime listeners
-    firebaseSync.removeRealtimeListener();
+    removeRealtimeSync();
 
     // Sign out from Firebase
     try {

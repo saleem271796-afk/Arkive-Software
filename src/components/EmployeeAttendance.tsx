@@ -17,7 +17,6 @@ import {
   CheckSquare
 } from 'lucide-react';
 import { useAttendance } from '../hooks/useAttendance';
-import { useTasks } from '../hooks/useTasks';
 import { useAuth } from '../contexts/AuthContext';
 import { useDatabase } from '../hooks/useDatabase';
 import { format, startOfMonth, endOfMonth, isToday } from 'date-fns';
@@ -25,7 +24,7 @@ import { db } from '../services/database';
 
 const EmployeeAttendance: React.FC = () => {
   const { attendance, markAttendance, updateAttendance, loading } = useAttendance();
-  const { updateTask } = useDatabase();
+  const { updateTask, tasks } = useDatabase();
   const { user } = useAuth();
   const [showMarkForm, setShowMarkForm] = useState(false);
   const [showPasswordRequest, setShowPasswordRequest] = useState(false);
@@ -51,20 +50,11 @@ const EmployeeAttendance: React.FC = () => {
 
   // Load employee tasks
   useEffect(() => {
-    const loadMyTasks = async () => {
-      if (user?.id) {
-        try {
-          const employeeTasks = await db.getTasksByEmployee(user.id);
-          setMyTasks(employeeTasks);
-        } catch (error) {
-          console.error('Error loading employee tasks:', error);
-          setMyTasks([]);
-        }
-      }
-    };
-    
-    loadMyTasks();
-  }, [user?.id]);
+    if (user?.id && tasks) {
+      const employeeTasks = tasks.filter(task => task.assignedTo === user.id);
+      setMyTasks(employeeTasks);
+    }
+  }, [user?.id, tasks]);
 
   // Calculate task stats
   const completedTasks = myTasks.filter(task => task.status === 'completed').length;
@@ -232,9 +222,6 @@ const EmployeeAttendance: React.FC = () => {
       };
       await updateTask(updatedTask);
       
-      // Update local state
-      setMyTasks(prev => prev.map(t => t.id === task.id ? updatedTask : t));
-      
       // Log activity
       await db.createActivity({
         userId: user!.id,
@@ -242,6 +229,9 @@ const EmployeeAttendance: React.FC = () => {
         details: `Updated task "${task.title}" status to ${newStatus}`,
         timestamp: new Date(),
       });
+      
+      // Show success message
+      showMessage(`Task "${task.title}" status updated to ${newStatus}`, 'success');
     } catch (error) {
       console.error('Error updating task status:', error);
       showMessage('Error updating task status', 'error');
