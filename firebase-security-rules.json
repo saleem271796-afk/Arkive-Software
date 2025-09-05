@@ -1,0 +1,557 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    
+    "users": {
+      ".indexOn": ["username", "role", "lastModified"],
+      "$userId": {
+        ".validate": "newData.hasChildren(['id', 'username', 'password', 'role', 'createdAt']) && newData.child('username').isString() && newData.child('password').isString() && (newData.child('role').val() == 'admin' || newData.child('role').val() == 'employee')",
+        "id": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "username": {
+          ".validate": "newData.isString() && newData.val().length >= 3"
+        },
+        "password": {
+          ".validate": "newData.isString() && newData.val().length >= 6"
+        },
+        "role": {
+          ".validate": "newData.val() == 'admin' || newData.val() == 'employee'"
+        },
+        "createdAt": {
+          ".validate": "newData.isString()"
+        },
+        "lastLogin": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "lastModified": {
+          ".validate": "newData.isString()"
+        },
+        "syncedBy": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+    
+    "clients": {
+      ".indexOn": ["cnic", "name", "type", "lastModified"],
+      "$clientId": {
+        ".validate": "newData.hasChildren(['id', 'name', 'cnic', 'password', 'type', 'createdAt', 'updatedAt']) && newData.child('cnic').isString() && newData.child('cnic').val().matches(/^[0-9]{13}$/)",
+        "id": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "cnic": {
+          ".validate": "newData.isString() && newData.val().matches(/^[0-9]{13}$/)"
+        },
+        "password": {
+          ".validate": "newData.isString() && newData.val().length >= 6"
+        },
+        "type": {
+          ".validate": "newData.val() == 'IRIS' || newData.val() == 'SECP' || newData.val() == 'PRA' || newData.val() == 'Other'"
+        },
+        "phone": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "email": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "notes": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "createdAt": {
+          ".validate": "newData.isString()"
+        },
+        "updatedAt": {
+          ".validate": "newData.isString()"
+        },
+        "lastModified": {
+          ".validate": "newData.isString()"
+        },
+        "syncedBy": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+    
+    "receipts": {
+      ".indexOn": ["clientCnic", "date", "createdBy", "lastModified"],
+      "$receiptId": {
+        ".validate": "newData.hasChildren(['id', 'clientName', 'clientCnic', 'amount', 'natureOfWork', 'paymentMethod', 'date', 'createdAt', 'createdBy']) && newData.child('amount').isNumber() && newData.child('amount').val() >= 0",
+        "id": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "clientName": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "clientCnic": {
+          ".validate": "newData.isString() && newData.val().matches(/^[0-9]{13}$/)"
+        },
+        "amount": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "natureOfWork": {
+          ".validate": "newData.isString()"
+        },
+        "paymentMethod": {
+          ".validate": "newData.val() == 'cash' || newData.val() == 'bank_transfer' || newData.val() == 'cheque' || newData.val() == 'card' || newData.val() == 'online'"
+        },
+        "date": {
+          ".validate": "newData.isString()"
+        },
+        "createdAt": {
+          ".validate": "newData.isString()"
+        },
+        "createdBy": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "lastModified": {
+          ".validate": "newData.isString()"
+        },
+        "syncedBy": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+    
+    "expenses": {
+      ".indexOn": ["category", "date", "createdBy", "lastModified"],
+      "$expenseId": {
+        ".validate": "newData.hasChildren(['id', 'description', 'amount', 'category', 'date', 'createdAt', 'createdBy']) && newData.child('amount').isNumber() && newData.child('amount').val() >= 0",
+        "id": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "description": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "amount": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "category": {
+          ".validate": "newData.val() == 'office' || newData.val() == 'utilities' || newData.val() == 'supplies' || newData.val() == 'maintenance' || newData.val() == 'food' || newData.val() == 'rent' || newData.val() == 'salary' || newData.val() == 'other'"
+        },
+        "date": {
+          ".validate": "newData.isString()"
+        },
+        "createdAt": {
+          ".validate": "newData.isString()"
+        },
+        "createdBy": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "lastModified": {
+          ".validate": "newData.isString()"
+        },
+        "syncedBy": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+    
+    "employees": {
+      ".indexOn": ["employeeId", "status", "department", "lastModified"],
+      "$employeeId": {
+        ".validate": "newData.hasChildren(['id', 'employeeId', 'name', 'email', 'position', 'department', 'status', 'username', 'password', 'role', 'createdAt', 'updatedAt'])",
+        "id": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "employeeId": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "email": {
+          ".validate": "newData.isString() && newData.val().contains('@')"
+        },
+        "position": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "department": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "status": {
+          ".validate": "newData.val() == 'active' || newData.val() == 'inactive' || newData.val() == 'terminated'"
+        },
+        "username": {
+          ".validate": "newData.isString() && newData.val().length >= 3"
+        },
+        "password": {
+          ".validate": "newData.isString() && newData.val().length >= 6"
+        },
+        "role": {
+          ".validate": "newData.val() == 'employee' || newData.val() == 'manager'"
+        },
+        "salary": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "joinDate": {
+          ".validate": "newData.isString()"
+        },
+        "createdAt": {
+          ".validate": "newData.isString()"
+        },
+        "updatedAt": {
+          ".validate": "newData.isString()"
+        },
+        "lastModified": {
+          ".validate": "newData.isString()"
+        },
+        "syncedBy": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+    
+    "attendance": {
+      ".indexOn": ["employeeId", "date", "status", "lastModified"],
+      "$attendanceId": {
+        ".validate": "newData.hasChildren(['id', 'employeeId', 'date', 'status', 'createdAt'])",
+        "id": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "employeeId": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "date": {
+          ".validate": "newData.isString()"
+        },
+        "checkIn": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "checkOut": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "status": {
+          ".validate": "newData.val() == 'present' || newData.val() == 'absent' || newData.val() == 'late' || newData.val() == 'half-day' || newData.val() == 'leave'"
+        },
+        "notes": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "workingHours": {
+          ".validate": "newData.isNumber() || newData.val() == null"
+        },
+        "createdAt": {
+          ".validate": "newData.isString()"
+        },
+        "lastModified": {
+          ".validate": "newData.isString()"
+        },
+        "syncedBy": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+    
+    "notifications": {
+      ".indexOn": ["read", "type", "createdAt", "lastModified"],
+      "$notificationId": {
+        ".validate": "newData.hasChildren(['id', 'message', 'type', 'read', 'createdAt'])",
+        "id": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "message": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "type": {
+          ".validate": "newData.val() == 'info' || newData.val() == 'warning' || newData.val() == 'error' || newData.val() == 'success'"
+        },
+        "read": {
+          ".validate": "newData.isBoolean()"
+        },
+        "createdAt": {
+          ".validate": "newData.isString()"
+        },
+        "lastModified": {
+          ".validate": "newData.isString()"
+        },
+        "syncedBy": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+    
+    "documents": {
+      ".indexOn": ["clientCnic", "fileType", "uploadedBy", "lastModified"],
+      "$documentId": {
+        ".validate": "newData.hasChildren(['id', 'clientCnic', 'fileName', 'fileType', 'uploadedBy', 'uploadedAt'])",
+        "id": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "clientCnic": {
+          ".validate": "newData.isString() && newData.val().matches(/^[0-9]{13}$/)"
+        },
+        "fileName": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "fileType": {
+          ".validate": "newData.val() == 'cnic' || newData.val() == 'tax_file' || newData.val() == 'contract' || newData.val() == 'invoice' || newData.val() == 'other'"
+        },
+        "fileSize": {
+          ".validate": "newData.isNumber() && newData.val() > 0"
+        },
+        "mimeType": {
+          ".validate": "newData.isString()"
+        },
+        "encryptedData": {
+          ".validate": "newData.isString()"
+        },
+        "uploadedBy": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "uploadedAt": {
+          ".validate": "newData.isString()"
+        },
+        "lastAccessed": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "lastModified": {
+          ".validate": "newData.isString()"
+        },
+        "syncedBy": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+    
+    "tasks": {
+      ".indexOn": ["assignedTo", "assignedBy", "status", "priority", "lastModified"],
+      "$taskId": {
+        ".validate": "newData.hasChildren(['id', 'title', 'description', 'assignedTo', 'assignedBy', 'priority', 'status', 'createdAt', 'updatedAt'])",
+        "id": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "title": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "description": {
+          ".validate": "newData.isString()"
+        },
+        "assignedTo": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "assignedBy": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "priority": {
+          ".validate": "newData.val() == 'low' || newData.val() == 'medium' || newData.val() == 'high' || newData.val() == 'urgent'"
+        },
+        "status": {
+          ".validate": "newData.val() == 'pending' || newData.val() == 'in_progress' || newData.val() == 'completed' || newData.val() == 'cancelled'"
+        },
+        "dueDate": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "completedAt": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "createdAt": {
+          ".validate": "newData.isString()"
+        },
+        "updatedAt": {
+          ".validate": "newData.isString()"
+        },
+        "lastModified": {
+          ".validate": "newData.isString()"
+        },
+        "syncedBy": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+    
+    "clientAccessRequests": {
+      ".indexOn": ["employeeId", "clientId", "status", "requestedAt", "lastModified"],
+      "$requestId": {
+        ".validate": "newData.hasChildren(['id', 'employeeId', 'employeeName', 'clientId', 'clientName', 'clientCnic', 'reason', 'status', 'requestedAt'])",
+        "id": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "employeeId": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "employeeName": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "clientId": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "clientName": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "clientCnic": {
+          ".validate": "newData.isString()"
+        },
+        "reason": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "status": {
+          ".validate": "newData.val() == 'pending' || newData.val() == 'approved' || newData.val() == 'denied'"
+        },
+        "requestedAt": {
+          ".validate": "newData.isString()"
+        },
+        "respondedAt": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "respondedBy": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "expiresAt": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "lastModified": {
+          ".validate": "newData.isString()"
+        },
+        "syncedBy": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+    
+    "clientTasks": {
+      ".indexOn": ["clientId", "assignedTo", "assignedBy", "status", "priority", "deadline", "lastModified"],
+      "$taskId": {
+        ".validate": "newData.hasChildren(['id', 'title', 'description', 'clientId', 'clientName', 'clientCnic', 'assignedBy', 'priority', 'status', 'createdAt', 'updatedAt'])",
+        "id": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "title": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "description": {
+          ".validate": "newData.isString()"
+        },
+        "clientId": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "clientName": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "clientCnic": {
+          ".validate": "newData.isString() && newData.val().matches(/^[0-9]{13}$/)"
+        },
+        "assignedTo": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "assignedBy": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "priority": {
+          ".validate": "newData.val() == 'low' || newData.val() == 'medium' || newData.val() == 'high' || newData.val() == 'urgent'"
+        },
+        "status": {
+          ".validate": "newData.val() == 'pending' || newData.val() == 'in_progress' || newData.val() == 'completed' || newData.val() == 'cancelled'"
+        },
+        "deadline": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "completedAt": {
+          ".validate": "newData.isString() || newData.val() == null"
+        },
+        "documentsRequired": {
+          ".validate": "newData.val() == null || (newData.hasChildren() && newData.val().length >= 0)"
+        },
+        "documentsReceived": {
+          ".validate": "newData.val() == null || (newData.hasChildren() && newData.val().length >= 0)"
+        },
+        "createdAt": {
+          ".validate": "newData.isString()"
+        },
+        "updatedAt": {
+          ".validate": "newData.isString()"
+        },
+        "lastModified": {
+          ".validate": "newData.isString()"
+        },
+        "syncedBy": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+    
+    "employeePermissions": {
+      ".indexOn": ["employeeId", "lastModified"],
+      "$permissionId": {
+        ".validate": "newData.hasChildren(['id', 'employeeId', 'canViewClientCredentials', 'requiresApprovalForCredentials', 'canViewAllClients', 'canCreateReceipts', 'createdAt', 'updatedAt'])",
+        "id": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "employeeId": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "canViewClientCredentials": {
+          ".validate": "newData.isBoolean()"
+        },
+        "requiresApprovalForCredentials": {
+          ".validate": "newData.isBoolean()"
+        },
+        "canViewAllClients": {
+          ".validate": "newData.isBoolean()"
+        },
+        "canCreateReceipts": {
+          ".validate": "newData.isBoolean()"
+        },
+        "canEditReceipts": {
+          ".validate": "newData.isBoolean()"
+        },
+        "canDeleteReceipts": {
+          ".validate": "newData.isBoolean()"
+        },
+        "canViewReports": {
+          ".validate": "newData.isBoolean()"
+        },
+        "canViewExpenses": {
+          ".validate": "newData.isBoolean()"
+        },
+        "canCreateExpenses": {
+          ".validate": "newData.isBoolean()"
+        },
+        "workingHours": {
+          "start": {
+            ".validate": "newData.isString() && newData.val().matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)"
+          },
+          "end": {
+            ".validate": "newData.isString() && newData.val().matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)"
+          }
+        },
+        "lateThresholdMinutes": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 120"
+        },
+        "requiresReasonForLate": {
+          ".validate": "newData.isBoolean()"
+        },
+        "canViewOtherEmployees": {
+          ".validate": "newData.isBoolean()"
+        },
+        "canViewAttendanceReports": {
+          ".validate": "newData.isBoolean()"
+        },
+        "createdAt": {
+          ".validate": "newData.isString()"
+        },
+        "updatedAt": {
+          ".validate": "newData.isString()"
+        },
+        "lastModified": {
+          ".validate": "newData.isString()"
+        },
+        "syncedBy": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+    
+    "sync_metadata": {
+      ".indexOn": ["lastSync"],
+      "$deviceId": {
+        "lastSync": {
+          ".validate": "newData.isString()"
+        }
+      }
+    }
+  }
+}
